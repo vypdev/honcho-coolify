@@ -86,12 +86,12 @@ If Coolify displays a separate exposed-port field, use the application/container
 Add these variables in Coolify's environment-variable UI. For the database password, use Coolify's **Generate** action (or enter another strong random password) when the variable is shown empty:
 
 ```text
-SERVICE_PASSWORD_64_HONCHO_DB=<generate in Coolify; do not leave empty>
+SERVICE_PASSWORD_HONCHO=<generate in Coolify; do not leave empty>
 LLM_OPENAI_API_KEY=
 OPENAI_API_KEY=
 ```
 
-`SERVICE_PASSWORD_64_HONCHO_DB` is a Coolify magic-variable name. Coolify may display it empty during the initial repository/Compose inspection and resolve it only after the variable is generated/saved. Do not deploy while it is empty. The Compose file maps the resulting value to the container variable `HONCHO_DB_PASSWORD`. Do not commit any generated password to GitHub. Enter the DeepSeek and OpenAI API keys manually and keep their values hidden.
+`SERVICE_PASSWORD_HONCHO` is a Coolify magic-variable name. Coolify may display it empty during the initial repository/Compose inspection and resolve it only after the variable is generated/saved. Do not deploy while it is empty. The Compose file maps the resulting value to the container variable `HONCHO_DB_PASSWORD`. Do not commit any generated password to GitHub. Enter the DeepSeek and OpenAI API keys manually and keep their values hidden.
 
 Optional validation settings:
 
