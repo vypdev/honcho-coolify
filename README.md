@@ -75,13 +75,15 @@ If Coolify displays a separate exposed-port field, use the application/container
 
 ### 2. Configure variables
 
-Add these variables in Coolify's environment-variable UI. Keep them private and mark them as secrets where Coolify supports secret variables:
+Add these variables in Coolify's environment-variable UI. Coolify should generate the PostgreSQL password automatically through its magic variable mechanism:
 
 ```text
-HONCHO_DB_PASSWORD=<long random PostgreSQL password>
-LLM_OPENAI_API_KEY=<DeepSeek API key>
-OPENAI_API_KEY=<OpenAI embeddings API key>
+SERVICE_PASSWORD_64_HONCHO_DB=<generated automatically by Coolify>
+LLM_OPENAI_API_KEY=
+OPENAI_API_KEY=
 ```
+
+The Compose file maps `SERVICE_PASSWORD_64_HONCHO_DB` to the container variable `HONCHO_DB_PASSWORD`. Do not replace the generated database password with an API key or commit its value. Enter the DeepSeek and OpenAI API keys manually after Coolify has created the variables, and keep their values hidden.
 
 Optional validation settings:
 

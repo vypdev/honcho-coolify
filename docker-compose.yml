@@ -1,9 +1,8 @@
 # Honcho on Coolify — parallel validation deployment.
 #
-# Required Coolify environment variables:
-#   HONCHO_DB_PASSWORD  PostgreSQL password
-#   LLM_OPENAI_API_KEY  DeepSeek API key (OpenAI-compatible)
-#   OPENAI_API_KEY      OpenAI embeddings API key
+#   SERVICE_PASSWORD_64_HONCHO_DB  Coolify-generated PostgreSQL password
+#   LLM_OPENAI_API_KEY             DeepSeek API key (OpenAI-compatible)
+#   OPENAI_API_KEY                 OpenAI embeddings API key
 #
 # Optional variables:
 #   HONCHO_DB_NAME      default: honcho
@@ -34,7 +33,8 @@ services:
     ports:
       - "127.0.0.1:${HONCHO_API_PORT:-18081}:8000"
     environment:
-      DB_CONNECTION_URI: postgresql+psycopg://${HONCHO_DB_USER:-honcho}:${HONCHO_DB_PASSWORD:?HONCHO_DB_PASSWORD_required}@database:5432/${HONCHO_DB_NAME:-honcho}
+      DB_CONNECTION_URI: postgresql+psycopg://${HONCHO_DB_USER:-honcho}:${SERVICE_PASSWORD_64_HONCHO_DB}@database:5432/${HONCHO_DB_NAME:-honcho}
+      HONCHO_DB_PASSWORD: ${SERVICE_PASSWORD_64_HONCHO_DB}
       CACHE_URL: redis://redis:6379/0?suppress=true
       CACHE_ENABLED: "true"
       AUTH_USE_AUTH: ${AUTH_USE_AUTH:-false}
@@ -93,7 +93,8 @@ services:
       redis:
         condition: service_healthy
     environment:
-      DB_CONNECTION_URI: postgresql+psycopg://${HONCHO_DB_USER:-honcho}:${HONCHO_DB_PASSWORD:?HONCHO_DB_PASSWORD_required}@database:5432/${HONCHO_DB_NAME:-honcho}
+      DB_CONNECTION_URI: postgresql+psycopg://${HONCHO_DB_USER:-honcho}:${SERVICE_PASSWORD_64_HONCHO_DB}@database:5432/${HONCHO_DB_NAME:-honcho}
+      HONCHO_DB_PASSWORD: ${SERVICE_PASSWORD_64_HONCHO_DB}
       CACHE_URL: redis://redis:6379/0?suppress=true
       CACHE_ENABLED: "true"
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
@@ -136,7 +137,7 @@ services:
     environment:
       POSTGRES_DB: ${HONCHO_DB_NAME:-honcho}
       POSTGRES_USER: ${HONCHO_DB_USER:-honcho}
-      POSTGRES_PASSWORD: ${HONCHO_DB_PASSWORD:?HONCHO_DB_PASSWORD_required}
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_64_HONCHO_DB}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -162,7 +163,7 @@ services:
       PGPORT: "5432"
       PGDATABASE: ${HONCHO_DB_NAME:-honcho}
       PGUSER: ${HONCHO_DB_USER:-honcho}
-      PGPASSWORD: ${HONCHO_DB_PASSWORD:?HONCHO_DB_PASSWORD_required}
+      PGPASSWORD: ${SERVICE_PASSWORD_64_HONCHO_DB}
     command:
       - sh
       - -c

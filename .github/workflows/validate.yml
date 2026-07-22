@@ -18,6 +18,10 @@ jobs:
       - name: Validate Compose syntax
         run: |
           cp .env.example .env.ci
+          sed -i \
+            -e 's/^LLM_OPENAI_API_KEY=$/LLM_OPENAI_API_KEY=ci-deepseek-placeholder/' \
+            -e 's/^OPENAI_API_KEY=$/OPENAI_API_KEY=ci-openai-placeholder/' \
+            .env.ci
           docker compose --env-file .env.ci config --quiet
           docker compose --env-file .env.ci config --services
           rm -f .env.ci
