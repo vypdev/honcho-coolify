@@ -50,7 +50,7 @@ Docker Compose
 
 Do not select Nixpacks, Railpack, Static, or Dockerfile. This deployment contains multiple coordinated services, so the Compose build pack is required.
 
-The repository already contains the complete `docker-compose.yml` manifest. No custom Dockerfile path, Nixpacks configuration, Railpack configuration, or static-site configuration is needed.
+The repository already contains the complete `docker-compose.yaml` manifest. No custom Dockerfile path, Nixpacks configuration, Railpack configuration, or static-site configuration is needed.
 
 The existing Coolify control plane uses host port `8000`. Do not assign Honcho to that port. During parallel validation, Honcho uses:
 
@@ -73,7 +73,7 @@ In Coolify:
    `https://github.com/vypdev/honcho-coolify/tree/master`
 5. Confirm that Coolify displays the branch as `master`.
 6. Use repository root as the base directory: `/`.
-7. Use `/docker-compose.yml` as the Compose file location (with base directory `/`). If the UI removes the leading slash automatically, `docker-compose.yml` is equivalent.
+7. Use `/docker-compose.yaml` as the Compose file location (with base directory `/`). If the UI removes the leading slash automatically, `docker-compose.yaml` is equivalent.
 8. Leave the domain/public proxy configuration empty during initial validation.
 9. Do not expose or publish PostgreSQL or Redis.
 
@@ -100,7 +100,7 @@ HONCHO_API_PORT=18081
 AUTH_USE_AUTH=false
 ```
 
-The model policy is already encoded in `docker-compose.yml`:
+The model policy is already encoded in `docker-compose.yaml`:
 
 - DeepSeek for derivation, summaries, observations, and dialectic operations.
 - OpenAI `text-embedding-3-small` for embeddings.
@@ -207,7 +207,7 @@ Do not run the local stack on a host where port `18081` is already in use. Use a
 ## Repository layout
 
 ```text
-docker-compose.yml  Coolify-compatible deployment manifest
+docker-compose.yaml  Coolify-compatible deployment manifest
 .env.example       Secret names and safe validation defaults
 README.md          Installation, validation, security, and rollback guide
 SECURITY.md        Security reporting and handling policy
