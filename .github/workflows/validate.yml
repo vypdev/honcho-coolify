@@ -1,0 +1,31 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  compose:
+    name: Validate Compose manifest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate Compose syntax
+        run: |
+          cp .env.example .env.ci
+          docker compose --env-file .env.ci config --quiet
+          docker compose --env-file .env.ci config --services
+          rm -f .env.ci
+
+      - name: Check repository for obvious secret material
+        shell: bash
+        run: |
+          if git grep -n -I -E 'sk-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9_]{20,}|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY' -- . ':!README.md'; then
+            echo 'Potential secret material found.' >&2
+            exit 1
+          fi

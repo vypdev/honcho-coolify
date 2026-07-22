@@ -1,0 +1,196 @@
+# Honcho on Coolify — parallel validation deployment.
+#
+# Required Coolify environment variables:
+#   HONCHO_DB_PASSWORD  PostgreSQL password
+#   LLM_OPENAI_API_KEY  DeepSeek API key (OpenAI-compatible)
+#   OPENAI_API_KEY      OpenAI embeddings API key
+#
+# Optional variables:
+#   HONCHO_DB_NAME      default: honcho
+#   HONCHO_DB_USER      default: honcho
+#   HONCHO_API_PORT     default: 18081 (parallel validation port)
+#   AUTH_USE_AUTH       default: false; enable before public exposure
+#   AUTH_JWT_SECRET     required when AUTH_USE_AUTH=true
+#
+# Coolify creates project-scoped names for the network and persistent volumes.
+# This keeps the application isolated from direct Compose deployments.
+# Do not point Hermes at this application until validation passes.
+
+services:
+  api:
+    build:
+      context: https://github.com/plastic-labs/honcho.git#v3.0.12
+      dockerfile: Dockerfile
+    entrypoint: ["sh", "docker/entrypoint.sh"]
+    init: true
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+      database-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${HONCHO_API_PORT:-18081}:8000"
+    environment:
+      DB_CONNECTION_URI: postgresql+psycopg://${HONCHO_DB_USER:-honcho}:${HONCHO_DB_PASSWORD:?HONCHO_DB_PASSWORD_required}@database:5432/${HONCHO_DB_NAME:-honcho}
+      CACHE_URL: redis://redis:6379/0?suppress=true
+      CACHE_ENABLED: "true"
+      AUTH_USE_AUTH: ${AUTH_USE_AUTH:-false}
+      AUTH_JWT_SECRET: ${AUTH_JWT_SECRET:-}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LLM_OPENAI_API_KEY: ${LLM_OPENAI_API_KEY:?LLM_OPENAI_API_KEY_required}
+      DERIVER_MODEL_CONFIG__MODEL: deepseek-chat
+      DERIVER_MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      DERIVER_MODEL_CONFIG__THINKING_EFFORT: low
+      DERIVER_MODEL_CONFIG__STRUCTURED_OUTPUT_MODE: json_object
+      SUMMARY_MODEL_CONFIG__MODEL: deepseek-chat
+      SUMMARY_MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      SUMMARY_MODEL_CONFIG__THINKING_EFFORT: low
+      DREAM_ENABLED: "false"
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY_required}
+      EMBED_MESSAGES: "true"
+      EMBEDDING_MODEL_CONFIG__MODEL: text-embedding-3-small
+      EMBEDDING_MODEL_CONFIG__TRANSPORT: openai
+      EMBEDDING_MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.openai.com/v1
+      EMBEDDING_MODEL_CONFIG__OVERRIDES__API_KEY_ENV: OPENAI_API_KEY
+      VECTOR_STORE_RECONCILIATION_INTERVAL_SECONDS: "60"
+      DIALECTIC_LEVELS__minimal__MODEL_CONFIG__MODEL: deepseek-chat
+      DIALECTIC_LEVELS__minimal__MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      DIALECTIC_LEVELS__low__MODEL_CONFIG__MODEL: deepseek-chat
+      DIALECTIC_LEVELS__low__MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      DIALECTIC_LEVELS__medium__MODEL_CONFIG__MODEL: deepseek-chat
+      DIALECTIC_LEVELS__medium__MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      DIALECTIC_LEVELS__high__MODEL_CONFIG__MODEL: deepseek-chat
+      DIALECTIC_LEVELS__high__MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      DIALECTIC_LEVELS__max__MODEL_CONFIG__MODEL: deepseek-chat
+      DIALECTIC_LEVELS__max__MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        ["CMD", "/app/.venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - backend
+
+  deriver:
+    build:
+      context: https://github.com/plastic-labs/honcho.git#v3.0.12
+      dockerfile: Dockerfile
+    entrypoint: ["/app/.venv/bin/python", "-m", "src.deriver"]
+    init: true
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_CONNECTION_URI: postgresql+psycopg://${HONCHO_DB_USER:-honcho}:${HONCHO_DB_PASSWORD:?HONCHO_DB_PASSWORD_required}@database:5432/${HONCHO_DB_NAME:-honcho}
+      CACHE_URL: redis://redis:6379/0?suppress=true
+      CACHE_ENABLED: "true"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LLM_OPENAI_API_KEY: ${LLM_OPENAI_API_KEY:?LLM_OPENAI_API_KEY_required}
+      DERIVER_MODEL_CONFIG__MODEL: deepseek-chat
+      DERIVER_MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      DERIVER_MODEL_CONFIG__THINKING_EFFORT: low
+      DERIVER_MODEL_CONFIG__STRUCTURED_OUTPUT_MODE: json_object
+      SUMMARY_MODEL_CONFIG__MODEL: deepseek-chat
+      SUMMARY_MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      SUMMARY_MODEL_CONFIG__THINKING_EFFORT: low
+      DREAM_ENABLED: "false"
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY_required}
+      EMBED_MESSAGES: "true"
+      EMBEDDING_MODEL_CONFIG__MODEL: text-embedding-3-small
+      EMBEDDING_MODEL_CONFIG__TRANSPORT: openai
+      EMBEDDING_MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.openai.com/v1
+      EMBEDDING_MODEL_CONFIG__OVERRIDES__API_KEY_ENV: OPENAI_API_KEY
+      VECTOR_STORE_RECONCILIATION_INTERVAL_SECONDS: "60"
+      DIALECTIC_LEVELS__minimal__MODEL_CONFIG__MODEL: deepseek-chat
+      DIALECTIC_LEVELS__minimal__MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      DIALECTIC_LEVELS__low__MODEL_CONFIG__MODEL: deepseek-chat
+      DIALECTIC_LEVELS__low__MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      DIALECTIC_LEVELS__medium__MODEL_CONFIG__MODEL: deepseek-chat
+      DIALECTIC_LEVELS__medium__MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      DIALECTIC_LEVELS__high__MODEL_CONFIG__MODEL: deepseek-chat
+      DIALECTIC_LEVELS__high__MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+      DIALECTIC_LEVELS__max__MODEL_CONFIG__MODEL: deepseek-chat
+      DIALECTIC_LEVELS__max__MODEL_CONFIG__OVERRIDES__BASE_URL: https://api.deepseek.com/v1
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - backend
+
+  database:
+    image: pgvector/pgvector:pg15
+    restart: unless-stopped
+    init: true
+    command: ["postgres", "-c", "max_connections=100"]
+    environment:
+      POSTGRES_DB: ${HONCHO_DB_NAME:-honcho}
+      POSTGRES_USER: ${HONCHO_DB_USER:-honcho}
+      POSTGRES_PASSWORD: ${HONCHO_DB_PASSWORD:?HONCHO_DB_PASSWORD_required}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - backend
+
+  database-init:
+    image: pgvector/pgvector:pg15
+    restart: "no"
+    init: true
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      PGHOST: database
+      PGPORT: "5432"
+      PGDATABASE: ${HONCHO_DB_NAME:-honcho}
+      PGUSER: ${HONCHO_DB_USER:-honcho}
+      PGPASSWORD: ${HONCHO_DB_PASSWORD:?HONCHO_DB_PASSWORD_required}
+    command:
+      - sh
+      - -c
+      - psql -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+    networks:
+      - backend
+
+  redis:
+    image: redis:8.2
+    restart: unless-stopped
+    init: true
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+  redis-data:
+
+networks:
+  backend:
+    driver: bridge

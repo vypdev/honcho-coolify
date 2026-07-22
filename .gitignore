@@ -1,0 +1,9 @@
+# Secrets and generated state
+.env
+.env.*
+!.env.example
+*.log
+*.sql
+*.dump
+*.dump.gz
+.DS_Store
