@@ -65,7 +65,7 @@ In Coolify:
    `https://github.com/vypdev/honcho-coolify`
 5. Use the default branch: `master`.
 6. Use repository root as the base directory: `/`.
-7. Use `docker-compose.yml` as the Compose file.
+7. Use `/docker-compose.yml` as the Compose file location (with base directory `/`). If the UI removes the leading slash automatically, `docker-compose.yml` is equivalent.
 8. Leave the domain/public proxy configuration empty during initial validation.
 9. Do not expose or publish PostgreSQL or Redis.
 
