@@ -32,21 +32,46 @@ The Compose file binds the API to loopback by default. It does not publish Postg
 
 ## Coolify installation
 
+### Build pack selection
+
+When Coolify asks for the build pack, select:
+
+```text
+Docker Compose
+```
+
+Do not select Nixpacks, Railpack, Static, or Dockerfile. This deployment contains multiple coordinated services, so the Compose build pack is required.
+
+The repository already contains the complete `compose.yaml` manifest. No custom Dockerfile path, Nixpacks configuration, Railpack configuration, or static-site configuration is needed.
+
+The existing Coolify control plane uses host port `8000`. Do not assign Honcho to that port. During parallel validation, Honcho uses:
+
+```text
+Host address: 127.0.0.1
+Host port:    18081
+Container port: 8000
+```
+
+The container's port is `8000`; the host port is controlled by `HONCHO_API_PORT`.
+
 ### 1. Create the application
 
 In Coolify:
 
 1. Create or select a project.
-2. Create a new **Docker Compose** application.
+2. Create a new application and select the **Docker Compose** build pack.
 3. Select the target Docker server and destination.
 4. Select the public repository:
    `https://github.com/vypdev/honcho-coolify`
 5. Use the default branch: `master`.
-6. Use repository root as the base directory.
+6. Use repository root as the base directory: `/`.
 7. Use `compose.yaml` as the Compose file.
-8. Do not configure a public domain during initial validation.
+8. Leave the domain/public proxy configuration empty during initial validation.
+9. Do not expose or publish PostgreSQL or Redis.
 
 The repository is deliberately root-installable: no path inside `ai01` is required.
+
+If Coolify displays a separate exposed-port field, use the application/container port `8000`; the Compose file handles the loopback host mapping to `18081`. Do not use Coolify's own host port `8000` for Honcho.
 
 ### 2. Configure variables
 
