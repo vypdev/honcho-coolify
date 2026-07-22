@@ -42,7 +42,7 @@ Docker Compose
 
 Do not select Nixpacks, Railpack, Static, or Dockerfile. This deployment contains multiple coordinated services, so the Compose build pack is required.
 
-The repository already contains the complete `compose.yaml` manifest. No custom Dockerfile path, Nixpacks configuration, Railpack configuration, or static-site configuration is needed.
+The repository already contains the complete `docker-compose.yml` manifest. No custom Dockerfile path, Nixpacks configuration, Railpack configuration, or static-site configuration is needed.
 
 The existing Coolify control plane uses host port `8000`. Do not assign Honcho to that port. During parallel validation, Honcho uses:
 
@@ -65,7 +65,7 @@ In Coolify:
    `https://github.com/vypdev/honcho-coolify`
 5. Use the default branch: `master`.
 6. Use repository root as the base directory: `/`.
-7. Use `compose.yaml` as the Compose file.
+7. Use `docker-compose.yml` as the Compose file.
 8. Leave the domain/public proxy configuration empty during initial validation.
 9. Do not expose or publish PostgreSQL or Redis.
 
@@ -90,7 +90,7 @@ HONCHO_API_PORT=18081
 AUTH_USE_AUTH=false
 ```
 
-The model policy is already encoded in `compose.yaml`:
+The model policy is already encoded in `docker-compose.yml`:
 
 - DeepSeek for derivation, summaries, observations, and dialectic operations.
 - OpenAI `text-embedding-3-small` for embeddings.
@@ -197,7 +197,7 @@ Do not run the local stack on a host where port `18081` is already in use. Use a
 ## Repository layout
 
 ```text
-compose.yaml       Coolify-compatible deployment manifest
+docker-compose.yml  Coolify-compatible deployment manifest
 .env.example       Secret names and safe validation defaults
 README.md          Installation, validation, security, and rollback guide
 SECURITY.md        Security reporting and handling policy
