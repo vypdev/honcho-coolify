@@ -81,6 +81,12 @@ The repository is deliberately root-installable: no path inside `ai01` is requir
 
 If Coolify displays a separate exposed-port field, use the application/container port `8000`; the Compose file handles the loopback host mapping to `18082`. Do not use Coolify's own host port `8000` for Honcho.
 
+### Health checks
+
+The Compose manifest defines Docker healthchecks for the API, PostgreSQL, and Redis services. The API check calls `http://localhost:8000/health`, so Docker and Coolify can verify container readiness.
+
+Coolify's **Health check path** (`/health`) and **Health check port** (`8000`) are application metadata managed by Coolify's UI/API; they are not standard Docker Compose properties and cannot be reliably prefilled from a public Compose repository. If Coolify displays the optional proxy warning, configure those two fields in the resource settings. Use the container port `8000`, not the host port `HONCHO_API_PORT` (default `18082`).
+
 ### 2. Configure variables
 
 Add these variables in Coolify's environment-variable UI. For the database password, use Coolify's **Generate** action (or enter another strong random password) when the variable is shown empty:
