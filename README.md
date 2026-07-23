@@ -104,6 +104,9 @@ Optional validation settings:
 ```text
 HONCHO_API_PORT=18082
 AUTH_USE_AUTH=false
+DERIVER_REPRESENTATION_BATCH_WORK_UNIT_TARGET_TOKENS=512
+DERIVER_REPRESENTATION_BATCH_MAX_AGE_SECONDS=300
+DERIVER_FLUSH_ENABLED=false
 ```
 
 The model policy is already encoded in `docker-compose.yaml`:
@@ -112,6 +115,10 @@ The model policy is already encoded in `docker-compose.yaml`:
 - OpenAI `text-embedding-3-small` for embeddings.
 - `DREAM_ENABLED=false` during the initial validation window.
 - Vector reconciliation every 60 seconds.
+- Representation batches target 512 tokens and flush after 5 minutes by default. This avoids
+  leaving short Hermes conversations un-derived for the upstream 30-minute default while
+  retaining batching for cost control. Set `DERIVER_FLUSH_ENABLED=true` only for controlled
+  tests, because it can increase model/API usage.
 
 Do not add `.env` files to this repository. Coolify is the secret store for this deployment.
 
