@@ -7,7 +7,7 @@
 # Optional variables:
 #   HONCHO_DB_NAME      default: honcho
 #   HONCHO_DB_USER      default: honcho
-#   HONCHO_API_PORT     default: 18081 (parallel validation port)
+#   HONCHO_API_PORT     default: 18082 (parallel validation port)
 #   AUTH_USE_AUTH       default: false; enable before public exposure
 #   AUTH_JWT_SECRET     required when AUTH_USE_AUTH=true
 #
@@ -31,7 +31,7 @@ services:
       redis:
         condition: service_healthy
     ports:
-      - "127.0.0.1:${HONCHO_API_PORT:-18081}:8000"
+      - "127.0.0.1:${HONCHO_API_PORT:-18082}:8000"
     environment:
       DB_CONNECTION_URI: postgresql+psycopg://${HONCHO_DB_USER:-honcho}:${SERVICE_PASSWORD_HONCHO}@database:5432/${HONCHO_DB_NAME:-honcho}
       HONCHO_DB_PASSWORD: ${SERVICE_PASSWORD_HONCHO}

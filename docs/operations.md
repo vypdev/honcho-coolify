@@ -5,7 +5,7 @@
 - [ ] Create a new Coolify Docker Compose application from this repository.
 - [ ] Confirm the intended Docker destination.
 - [ ] Configure the three required secret variables in Coolify.
-- [ ] Keep `HONCHO_API_PORT=18081` for parallel validation.
+- [ ] Keep `HONCHO_API_PORT=18082` for parallel validation.
 - [ ] Do not configure a public domain while authentication is disabled.
 - [ ] Deploy and verify all health checks.
 - [ ] Verify the `vector` PostgreSQL extension.
@@ -15,7 +15,7 @@
 ## Health checks
 
 ```bash
-curl --fail --silent --show-error http://127.0.0.1:18081/health
+curl --fail --silent --show-error http://127.0.0.1:18082/health
 ```
 
 Inspect the application in Coolify and confirm:
@@ -44,10 +44,10 @@ The application starts with an empty database. Honcho's API entrypoint runs Alem
 The recommended low-risk sequence is:
 
 1. Keep the existing Honcho deployment on `127.0.0.1:18080`.
-2. Deploy this repository on `127.0.0.1:18081`.
+2. Deploy this repository on `127.0.0.1:18082`.
 3. Run health, provider, Deriver, persistence, and semantic-search tests.
 4. Back up Hermes configuration before changing its Honcho URL.
-5. Point Hermes at `http://127.0.0.1:18081`.
+5. Point Hermes at `http://127.0.0.1:18082`.
 6. Restart or reload the Hermes process.
 7. Verify a new session, message synchronization, embedding, and semantic search.
 8. Keep the old deployment available for rollback.

@@ -19,7 +19,7 @@ No application secrets, database data, Hermes state, or historical memory are st
 ```text
 Hermes / OpenClaw on the host
         |
-        | localhost HTTP, initially port 18081
+        | localhost HTTP, initially port 18082
         v
 Honcho API (Coolify-managed Compose application)
         |
@@ -56,7 +56,7 @@ The existing Coolify control plane uses host port `8000`. Do not assign Honcho t
 
 ```text
 Host address: 127.0.0.1
-Host port:    18081
+Host port:    18082
 Container port: 8000
 ```
 
@@ -79,7 +79,7 @@ In Coolify:
 
 The repository is deliberately root-installable: no path inside `ai01` is required.
 
-If Coolify displays a separate exposed-port field, use the application/container port `8000`; the Compose file handles the loopback host mapping to `18081`. Do not use Coolify's own host port `8000` for Honcho.
+If Coolify displays a separate exposed-port field, use the application/container port `8000`; the Compose file handles the loopback host mapping to `18082`. Do not use Coolify's own host port `8000` for Honcho.
 
 ### 2. Configure variables
 
@@ -96,7 +96,7 @@ OPENAI_API_KEY=
 Optional validation settings:
 
 ```text
-HONCHO_API_PORT=18081
+HONCHO_API_PORT=18082
 AUTH_USE_AUTH=false
 ```
 
@@ -116,7 +116,7 @@ Deploy from Coolify, then verify from the host:
 ```bash
 curl --fail --silent --show-error \
   --max-time 10 \
-  http://127.0.0.1:18081/health
+  http://127.0.0.1:18082/health
 ```
 
 Expected response:
@@ -158,7 +158,7 @@ Keep the existing Honcho deployment running while validating this repository. Do
 
 For a reversible cutover, either:
 
-- keep the new instance on `18081` and change Hermes' Honcho base URL; or
+- keep the new instance on `18082` and change Hermes' Honcho base URL; or
 - stop the old instance, change `HONCHO_API_PORT` to `18080`, and redeploy this Compose application.
 
 Do not run both instances on the same host port.
@@ -202,7 +202,7 @@ docker compose --env-file .env config --quiet
 docker compose --env-file .env config --services
 ```
 
-Do not run the local stack on a host where port `18081` is already in use. Use a different `HONCHO_API_PORT` for a parallel validation deployment.
+Do not run the local stack on a host where port `18082` is already in use. Use a different `HONCHO_API_PORT` for a parallel validation deployment.
 
 ## Repository layout
 
